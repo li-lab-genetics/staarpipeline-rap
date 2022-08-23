@@ -13,6 +13,7 @@ Specifically, this app will
 
 2. Take the null model object from the first step and run your association analysis, while dynamically incorporating multiple functional annotations to empower rare variant (set) association analysis using the STAAR method. The same null model can be used for single variant or aggregate tests.
 
+The single variant or aggregate test results generated from this app can be summarized by the <a href="https://github.com/xihaoli/staarpipelinesummary_varset-rap">**staarpipelinesummary_varset**</a> and <a href="https://github.com/xihaoli/staarpipelinesummary_indvar-rap">**staarpipelinesummary_indvar**</a> apps.
 
 Please see the <a href="https://tinyurl.com/staarpipeline">**user manual and tutorial**</a> for detailed usage of staarpipeline app.
 
