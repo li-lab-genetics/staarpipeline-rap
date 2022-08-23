@@ -9,9 +9,9 @@ The staarpipeline app can run single variant, gene-centric coding, gene-centric 
 
 Specifically, this app will
 
-1. fit the null model. This is fitting your model with your outcome, adjustments and kinship/genetic relatedness matrix, but does not use the genotypes;
+1. Fit the null model. This is fitting your model with your outcome, adjustments and kinship/genetic relatedness matrix, but does not use the genotypes;
 
-2. take the null model object from the first step and run your association analysis, while dynamically incorporating multiple functional annotations to empower rare variant (set) association analysis using the STAAR method. The same null model can be used for single variant or aggregate tests.
+2. Take the null model object from the first step and run your association analysis, while dynamically incorporating multiple functional annotations to empower rare variant (set) association analysis using the STAAR method. The same null model can be used for single variant or aggregate tests.
 
 
 Please see the <a href="https://tinyurl.com/staarpipeline">**user manual and tutorial**</a> for detailed usage of staarpipeline app.
