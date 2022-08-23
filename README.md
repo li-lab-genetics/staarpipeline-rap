@@ -28,3 +28,11 @@ You can then run the following to run this applet:
 ```commandline
 dx run staarpipeline-rap <options>
 ```
+
+### Applet Usage
+The staarpipeline app can run single variant, gene-centric coding, gene-centric noncoding, ncRNA, sliding window, and dynamic window tests for biobank-scale whole-genome/whole-exome sequencing data. It will account for relatedness using a kinship/relatedness matrix and dynamically incorporates multiple functional annotations to empower rare variant (set) association analysis.
+
+Specifically, this app will 1. fit the null model. This is fitting your model with your outcome, adjustments and kinship/genetic relatedness matrix, but does not use the genotypes; and 2. take the null model object from the first step and run your association analysis, while dynamically incorporating multiple functional annotations to empower rare variant (set) association analysis using the STAAR method. The same null model can be used for single variant or aggregate tests.
+
+
+Please see the <a href="https://tinyurl.com/staarpipeline">**user manual and tutorial**</a> for detailed usage of staarpipeline app.
