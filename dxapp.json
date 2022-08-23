@@ -1,0 +1,214 @@
+{
+  "name": "staarpipeline_v0.9.6",
+  "title": "STAAR Pipeline for Analyzing WGS/WES Data",
+  "summary": "This is a pipeline applet to perform STAAR procedure for analyzing whole-genome/whole-exome sequencing data. For more details about this applet, please see the user manual at https://tinyurl.com/staarpipeline",
+  "description": "For null model fitting (\"Null\"), an instance type of \"mem3_ssd1_v2_x4\" is recommended. For single variant analysis (\"Single\"), an instance type of \"mem3_ssd1_v2_x32\" with 25 cores is recommended per chromosome. For gene-centric analysis of coding functional categories (\"Gene_Centric_Coding\"), an instance type of \"mem3_ssd1_v2_x32\" with 32 cores is recommended per chromosome. For gene-centric analysis of noncoding functional categories (\"Gene_Centric_Noncoding\"), an instance type of \"mem3_ssd1_v2_x64\" with 64 cores is recommended per chromosome. For ncRNA analysis (\"ncRNA\"), an instance type of \"mem3_ssd1_v2_x32\" with 32 cores is recommended per chromosome. For sliding window analysis (\"Sliding_Window\"), an instance type of \"mem3_ssd1_v2_x96\" with 80 cores is recommended per chromosome. Note 1: The staarpipeline applet assumes sparse relatedness matrices as the input (for related samples) when fitting the null model. The null model object fitted from the GENESIS R/Bioconductor package is also allowed for all downstream testing procedures (\"Single\", \"Gene_Centric_Coding\", \"Gene_Centric_Noncoding\", \"ncRNA\", \"Sliding_Window\"). Note 2: These configurations are optimized at sample size ~65,000. For larger sample sizes, please consider reducing the number of cores if needed. For more information on the detailed computation time and cost, please see the online user manual.",
+  "dxapi": "1.0.0",
+  "version": "0.9.6",
+  "inputSpec": [
+    {
+      "name": "outfile",
+      "label": "Output file prefix",
+      "help": "Prefix of output file name. The output result file will be an .Rdata object.",
+      "class": "string",
+      "optional": false
+    },
+    {
+      "name": "test_type",
+      "label": "Valid tests: \"Single\", \"Gene_Centric_Coding\", \"Gene_Centric_Noncoding\", \"ncRNA\", \"Sliding_Window\", \"Null\" (no tests, only fitting the null model)",
+      "help": "Only \"Single\", \"Gene_Centric_Coding\", \"Gene_Centric_Noncoding\", \"ncRNA\", \"Sliding_Window\", \"Null\" are valid test types. Note that no tests will be performed when choosing Null, only the STAAR null model will be fitted and saved in an .Rdata object.",
+      "class": "string",
+      "optional": false
+    },
+    {
+      "name": "pheno_file",
+      "label": "Phenotype/covariates file",
+      "help": "A comma separated values (.csv) file (first row is the header) saving the phenotype/covariates, as well as an ID column (and an optional column for the grouping variable in heteroscedastic linear mixed models).",
+      "class": "file",
+      "patterns": ["*.csv"],
+      "optional": true
+    },
+    {
+      "name": "grm_file",
+      "label": "Kinship/GRM (matrix and list of matrices allowed, rownames and colnames should follow the same ID format as in pheno_file)",
+      "help": "An R object saving the (sparse) kinship/genetic relatedness matrices. The matrices should be in matrix or list of matrices format, with row and col names following the same ID format as in pheno_file. Must be an .RData or .Rda file.",
+      "class": "file",
+      "patterns": ["*.RData", "*.Rdata", "*.Rda"],
+      "optional": true
+    },
+    {
+      "name": "nullobj_file",
+      "label": "Null model",
+      "help": "An R object saving the fitted null mixed model from STAAR. Must be an .RData or .Rda file.",
+      "class": "file",
+      "patterns": ["*.RData", "*.Rdata", "*.Rda"],
+      "optional": true
+    },
+    {
+      "name": "agds_file",
+      "label": "AGDS file",
+      "help": "Genotype and functional annotation all-in-one GDS (AGDS) file in .gds format. Must be provided if test_type is \"Single\", \"Gene_Centric_Coding\", \"Gene_Centric_Noncoding\", \"ncRNA\", or \"Sliding_Window\".",
+      "class": "file",
+      "patterns": ["*.gds"],
+      "optional": true
+    },
+    {
+      "name": "annotation_name_catalog_file",
+      "label": "Annotation name catalog",
+      "help": "A comma separated values (.csv) file containing the name (\"name\") and the corresponding channel name (\"dir\") in the AGDS file. If the AGDS file is generated using FAVORannotator, the .csv file can be downloaded from https://github.com/xihaoli/STAARpipeline-Tutorial/tree/main/FAVORannotator_csv/annotation_name_catalog.csv.",
+      "class": "file",
+      "patterns": ["*.csv"],
+      "optional": true
+    },
+    {
+      "name": "phenotype",
+      "label": "Phenotype to be analyzed in pheno_file",
+      "help": "Phenotype column name in pheno_file.",
+      "class": "string",
+      "optional": true
+    },
+    {
+      "name": "pheno_id",
+      "label": "ID column name in pheno_file (ID format should match row and col names in the relatedness matrices)",
+      "help": "ID column name in pheno_file (ID format should match row and col names in the relatedness matrices). If not specified, \"sample.id\" will be used as the default.",
+      "class": "string",
+      "optional": true,
+      "default": "sample.id"
+    },
+    {
+      "name": "covariates",
+      "label": "Covariates to be adjusted for in pheno_file (multiple covariates should be comma-separated, with no space, like \"age,sex\")",
+      "help": "Covariate column name(s) in pheno_file (if multiple covariates, they should be comma-separated, with no space, like \"age,sex\"). If not specified, no covariates will be adjusted as fixed effects by default.",
+      "class": "string",
+      "optional": true
+    },
+    {
+      "name": "het_vars",
+      "label": "Grouping variable in pheno_file for heteroscedastic linear mixed models",
+      "help": "Grouping variable column name in pheno_file for heteroscedastic linear mixed models. Ignored if the phenotype is binary (logistic mixed models). If not specified, all samples are assumed to have the same residual variance in linear mixed models by default.",
+      "class": "string",
+      "optional": true
+    },
+    {
+      "name": "random_time_slope",
+      "label": "Time variable in pheno_file for random slope in longitudinal data analysis",
+      "help": "Time variable column name in pheno_file for random slope in longitudinal data analysis. It is useful for modeling longitudinal data with both a random intercept and a random slope for time effects (individual-specific time trends). Generally, this variable should be included as a fixed-effects covariate as well. Note that it does not need to be specified in longitudinal data analysis for repeated measures with no time trends.",
+      "class": "string",
+      "optional": true
+    },
+    {
+      "name": "user_cores",
+      "label": "Number of cores to be used in the computation",
+      "help": "Number of cores to be used in the computation. Please consider the maximum memory footprint when choosing the number of cores. If not specified, 25 cores will be used in the computation. If the analyses run out of memory, please reduce the number of cores.",
+      "class": "int",
+      "optional": true,
+      "default": 25
+    },
+    {
+      "name": "min_mac",
+      "label": "Minimum minor allele count for a variant to be included in single variant analysis (\"Single\")",
+      "help": "Note this is the minimum minor allele count, not the alternate (coding) allele count. If not specified, 10 will be used as the default.",
+      "class": "int",
+      "optional": true,
+      "default": 10
+    },
+    {
+      "name": "max_maf",
+      "label": "Maximum minor allele frequency for a variant to be included in variant-set test (\"Gene_Centric_Coding\", \"Gene_Centric_Noncoding\", \"ncRNA\", \"Sliding_Window\")",
+      "help": "Note this is the maximum minor allele frequency, not the alternate (coding) allele frequency. If not specified, 0.01 will be used as the default (to perform variant-set analysis for rare variants).",
+      "class": "float",
+      "optional": true,
+      "default": 0.01
+    },
+    {
+      "name": "sliding_window_length",
+      "label": "Sliding window size (bp) to be used in sliding window test (\"Sliding_Window\")",
+      "help": "Sliding window size (bp) to be used to perform sliding window test for rare variants. If not specified, 2000 (bp) will be used as the default.",
+      "class": "int",
+      "optional": true,
+      "default": 2000
+    },
+    {
+      "name": "qc_label_dir",
+      "label": "Channel name of the QC label in the AGDS file",
+      "help": "Channel name of the QC label in the AGDS file, where PASS variants should be labeled as \"PASS\". If not specified, \"annotation/filter\" will be used as the default.",
+      "class": "string",
+      "optional": true,
+      "default": "annotation/filter"
+    },
+    {
+      "name": "variant_type",
+      "label": "Type of variant included in the analysis",
+      "help": "Type of variant included in the analysis. Choices include \"SNV\", \"Indel\", or \"variant\". If not specified, \"SNV\" will be used as the default.",
+      "class": "string",
+      "optional": true,
+      "default": "SNV"
+    },
+    {
+      "name": "geno_missing_imputation",
+      "label": "Method of handling missing genotypes",
+      "help": "Method of handling missing genotypes. Either \"mean\" or \"minor\". If not specified, \"mean\" will be used as the default.",
+      "class": "string",
+      "optional": true,
+      "default": "mean"
+    },
+    {
+      "name": "annotation_dir",
+      "label": "Channel name of the annotations in the AGDS file",
+      "help": "Channel name of the annotations in the AGDS file. If not specified, \"annotation/info/FunctionalAnnotation\" will be used as the default, which is consistent with FAVORannotator.",
+      "class": "string",
+      "optional": true,
+      "default": "annotation/info/FunctionalAnnotation"
+    },
+    {
+      "name": "use_annotation_weights",
+      "label": "Use annotations as weights or not",
+      "help": "Use annotations as weights or not. Either \"YES\" or \"NO\". If not specified, \"YES\" will be used as the default.",
+      "class": "string",
+      "optional": true,
+      "default": "YES"
+    },
+    {
+      "name": "annotation_name",
+      "label": "Annotations used in STAAR (multiple annotations should be comma-separated, with no space, like \"aPC.Conservation,aPC.Protein\")",
+      "help": "Annotations used in STAAR. Should be a subset of annotations in the annotation_name_catalog_file (if multiple annotations, they should be comma-separated, with no space, like \"aPC.Conservation,aPC.Protein\"). If not specified, \"CADD,LINSIGHT,FATHMM.XF,aPC.EpigeneticActive,aPC.EpigeneticRepressed,aPC.EpigeneticTranscription,aPC.Conservation,aPC.LocalDiversity,aPC.Mappability,aPC.TF,aPC.Protein\" will be used as the default, which is consistent with FAVORannotator.",
+      "class": "string",
+      "optional": true,
+      "default": "CADD,LINSIGHT,FATHMM.XF,aPC.EpigeneticActive,aPC.EpigeneticRepressed,aPC.EpigeneticTranscription,aPC.Conservation,aPC.LocalDiversity,aPC.Mappability,aPC.TF,aPC.Protein"
+    }
+  ],
+  "outputSpec": [
+    {
+      "name": "results",
+      "help": "",
+      "class": "file",
+      "patterns": ["*"]
+    }
+  ],
+  "runSpec": {
+    "file": "src/code.sh",
+    "release": "16.04",
+    "interpreter": "bash",
+    "timeoutPolicy": {
+      "*": {
+        "days": 7
+      }
+    },
+    "distribution": "Ubuntu"
+  },
+  "access": {
+    "network": [
+      "*"
+    ]
+  },
+  "ignoreReuse": false,
+  "regionalOptions": {
+    "aws:us-east-1": {
+      "systemRequirements": {
+        "*": {
+          "instanceType": "mem3_ssd1_v2_x32"
+        }
+      }
+    }
+  }
+}
