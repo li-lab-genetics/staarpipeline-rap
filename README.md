@@ -5,7 +5,7 @@ For more information about how to run or modify it, see
 https://documentation.dnanexus.com/.
 
 ### Applet Usage
-The staarpipeline app can run single variant, gene-centric coding, gene-centric noncoding, ncRNA, sliding window, and dynamic window tests for biobank-scale whole-genome/whole-exome sequencing data. It will account for relatedness using a kinship/relatedness matrix and dynamically incorporates multiple functional annotations to empower rare variant (set) association analysis.
+The **staarpipeline** app can run single variant, gene-centric coding, gene-centric noncoding, ncRNA, sliding window, and dynamic window tests for biobank-scale whole-genome/whole-exome sequencing data. It will account for relatedness using a kinship/relatedness matrix and dynamically incorporates multiple functional annotations to empower rare variant (set) association analysis.
 
 Specifically, this app will
 
