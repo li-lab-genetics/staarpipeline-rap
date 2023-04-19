@@ -1,5 +1,5 @@
 {
-  "name": "staarpipeline_v0.9.6",
+  "name": "staarpipeline",
   "title": "STAAR Pipeline for Analyzing WGS/WES Data",
   "summary": "This is a pipeline applet to perform STAAR procedure for analyzing whole-genome/whole-exome sequencing data. For more details about this applet, please see the user manual at https://tinyurl.com/staarpipeline",
   "description": "For null model fitting (\"Null\"), an instance type of \"mem3_ssd1_v2_x4\" is recommended. For single variant analysis (\"Single\"), an instance type of \"mem3_ssd1_v2_x32\" with 25 cores is recommended per chromosome. For gene-centric analysis of coding functional categories (\"Gene_Centric_Coding\"), an instance type of \"mem3_ssd1_v2_x32\" with 32 cores is recommended per chromosome. For gene-centric analysis of noncoding functional categories (\"Gene_Centric_Noncoding\"), an instance type of \"mem3_ssd1_v2_x64\" with 64 cores is recommended per chromosome. For ncRNA analysis (\"ncRNA\"), an instance type of \"mem3_ssd1_v2_x32\" with 32 cores is recommended per chromosome. For sliding window analysis (\"Sliding_Window\"), an instance type of \"mem3_ssd1_v2_x96\" with 80 cores is recommended per chromosome. Note 1: The staarpipeline applet assumes sparse relatedness matrices as the input (for related samples) when fitting the null model. The null model object fitted from the GENESIS R/Bioconductor package is also allowed for all downstream testing procedures (\"Single\", \"Gene_Centric_Coding\", \"Gene_Centric_Noncoding\", \"ncRNA\", \"Sliding_Window\"). Note 2: These configurations are optimized at sample size ~65,000. For larger sample sizes, please consider reducing the number of cores if needed. For more information on the detailed computation time and cost, please see the online user manual.",
@@ -203,7 +203,7 @@
   },
   "ignoreReuse": false,
   "regionalOptions": {
-    "aws:us-east-1": {
+    "aws:eu-west-2": {
       "systemRequirements": {
         "*": {
           "instanceType": "mem3_ssd1_v2_x32"
