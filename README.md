@@ -23,7 +23,7 @@ To acquire the staarpipeline applet, you will need to compile this applet for yo
 1. Clone this github repo to some directory:
 
 ```commandline
-git clone https://github.com/xihaoli/staarpipeline-rap.git
+git clone https://github.com/li-lab-genetics/staarpipeline-rap.git
 ```
 
 This will create a folder named staarpipeline-rap, you can then:
