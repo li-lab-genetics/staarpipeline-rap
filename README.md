@@ -15,7 +15,7 @@ Specifically, this app will
 
 The single variant or aggregate test results generated from this app can be summarized by the <a href="https://github.com/xihaoli/staarpipelinesummary_varset-rap">**staarpipelinesummary_varset**</a> and <a href="https://github.com/xihaoli/staarpipelinesummary_indvar-rap">**staarpipelinesummary_indvar**</a> apps.
 
-Please see the <a href="https://tinyurl.com/staarpipeline">**user manual and tutorial**</a> for detailed usage of staarpipeline app.
+Please see the <a href="https://tinyurl.com/staarpipelineapps">**user manual and tutorial**</a> for detailed usage of staarpipeline app.
 
 ### Cloning an Applet
 To acquire the staarpipeline applet, you will need to compile this applet for your respective DNANexus project, by cloning the repository from github and `dx build` an APPLET into your own workspace.
