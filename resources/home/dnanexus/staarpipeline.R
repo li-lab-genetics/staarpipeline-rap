@@ -473,7 +473,9 @@ if(test.type == "Null") {
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
   rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
-		
+	
+  source("ncRNA_nolongmask.R")
+  
 	genofile <- seqOpen(agds.file)
 	
 	## Chr
@@ -493,10 +495,10 @@ if(test.type == "Null") {
 	                                        Use_annotation_weights,Annotation_name,silent)
 	{
 		gene_name <- ncRNA_gene_chr[kk,2]
-		results <- try(ncRNA(chr=chr,gene_name=gene_name,genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
-		                     QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
-		                     Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
-		                     Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
+		results <- try(ncRNA_nolongmask(chr=chr,gene_name=gene_name,genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
+		                                QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
+		                                Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
+		                                Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
 		return(results)
 	}
 		
