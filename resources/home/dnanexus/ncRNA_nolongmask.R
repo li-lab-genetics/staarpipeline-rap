@@ -74,10 +74,10 @@ ncRNA_nolongmask <- function(chr,gene_name,genofile,obj_nullmodel,
 	is.in <- ((GENCODE.Category=="ncRNA_exonic")|(GENCODE.Category=="ncRNA_exonic;splicing")|(GENCODE.Category=="ncRNA_splicing"))&(SNVlist)
 
 	variant.id.ncRNA <- variant.id[is.in]
-	
+
 	rm(GENCODE.Category)
 	gc()
-	
+
 	seqSetFilter(genofile,variant.id=variant.id.ncRNA,sample.id=phenotype.id)
 
 	rm(variant.id.ncRNA)
