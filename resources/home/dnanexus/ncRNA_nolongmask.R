@@ -78,11 +78,6 @@ ncRNA_nolongmask <- function(chr,gene_name,genofile,obj_nullmodel,
 	rm(GENCODE.Category)
 	gc()
 	
-	if(length(variant.id.ncRNA) > 10000)
-	{
-	  return(NULL)
-	}
-
 	seqSetFilter(genofile,variant.id=variant.id.ncRNA,sample.id=phenotype.id)
 
 	rm(variant.id.ncRNA)
@@ -112,6 +107,11 @@ ncRNA_nolongmask <- function(chr,gene_name,genofile,obj_nullmodel,
 
 	variant.is.in <- variant.id.ncRNA[is.in]
 
+	if(length(variant.is.in) > 10000)
+	{
+	  return(NULL)
+	}
+	
 	seqSetFilter(genofile,variant.id=variant.is.in,sample.id=phenotype.id)
 
 	## genotype id
