@@ -98,7 +98,7 @@ main() {
     fi
 
     echo "Rscript --vanilla staarpipeline.R $outfile $test_type $pheno_file2 $grm_file2 $nullobj_file2 $agds_file2 $annotation_name_catalog_file2 $phenotype $pheno_id $covariates $het_vars $random_time_slope $user_cores $min_mac $max_maf $sliding_window_length $qc_label_dir $variant_type $geno_missing_imputation $annotation_dir $use_annotation_weights $annotation_name"
-    dx-docker run -v /home/dnanexus/:/home/dnanexus/ -w /home/dnanexus/ zilinli/staarpipeline:0.9.6 Rscript --vanilla staarpipeline.R $outfile $test_type $pheno_file2 $grm_file2 $nullobj_file2 $agds_file2 $annotation_name_catalog_file2 $phenotype $pheno_id $covariates $het_vars $random_time_slope $user_cores $min_mac $max_maf $sliding_window_length $qc_label_dir $variant_type $geno_missing_imputation $annotation_dir $use_annotation_weights $annotation_name
+    dx-docker run -v /home/dnanexus/:/home/dnanexus/ -w /home/dnanexus/ zilinli/staarpipeline:0.9.7 Rscript --vanilla staarpipeline.R $outfile $test_type $pheno_file2 $grm_file2 $nullobj_file2 $agds_file2 $annotation_name_catalog_file2 $phenotype $pheno_id $covariates $het_vars $random_time_slope $user_cores $min_mac $max_maf $sliding_window_length $qc_label_dir $variant_type $geno_missing_imputation $annotation_dir $use_annotation_weights $annotation_name
     mkdir -p out/results
     mv ${outfile}.Rdata out/results
     dx-upload-all-outputs
