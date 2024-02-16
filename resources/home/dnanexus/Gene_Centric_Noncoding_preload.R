@@ -972,7 +972,7 @@ noncoding_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   results_enhancer_CAGE <- c()
   if(inherits(pvalues, "list"))
   {
-    results_temp <- dfHancerVarGene.SNV[1,1:4]
+    results_temp <- dfHancerCAGEVarGene.SNV[1,1:4]
     results_temp[3] <- "enhancer_CAGE"
     results_temp[2] <- chr
     results_temp[1] <- as.character(gene_name)
@@ -1100,7 +1100,7 @@ noncoding_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   results_enhancer_DHS <- c()
   if(inherits(pvalues, "list"))
   {
-    results_temp <- dfHancerVarGene.SNV[1,1:4]
+    results_temp <- dfHancerrOCRsVarGene.SNV[1,1:4]
     results_temp[3] <- "enhancer_DHS"
     results_temp[2] <- chr
     results_temp[1] <- as.character(gene_name)
