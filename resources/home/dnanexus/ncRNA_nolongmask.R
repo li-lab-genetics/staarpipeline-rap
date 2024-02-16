@@ -1,51 +1,25 @@
-#' Gene-centric analysis of long noncoding RNA (ncRNA) category using STAAR procedure
-#'
-#' The \code{ncRNA} function takes in chromosome, gene name,
-#' the object of opened annotated GDS file, and the object from fitting the null model to analyze the association between a
-#' quantitative/dichotomous phenotype and the exonic and splicing category of an ncRNA gene by using STAAR procedure.
-#' For each ncRNA category, the STAAR-O p-value is a p-value from an omnibus test
-#' that aggregated SKAT(1,25), SKAT(1,1), Burden(1,25), Burden(1,1), ACAT-V(1,25),
-#' and ACAT-V(1,1) together with p-values of each test weighted by each annotation
-#' using Cauchy method.
-#' @param chr chromosome.
-#' @param gene_name name of the ncRNA gene to be analyzed using STAAR procedure.
-#' @param genofile an object of opened annotated GDS (aGDS) file.
-#' @param obj_nullmodel an object from fitting the null model, which is either the output from \code{\link{fit_nullmodel}} function,
-#' or the output from \code{fitNullModel} function in the \code{GENESIS} package and transformed using the \code{\link{genesis2staar_nullmodel}} function.
-#' @param rare_maf_cutoff the cutoff of maximum minor allele frequency in
-#' defining rare variants (default = 0.01).
-#' @param rv_num_cutoff the cutoff of minimum number of variants of analyzing
-#' a given variant-set (default = 2).
-#' @param QC_label channel name of the QC label in the GDS/aGDS file (default = "annotation/filter").
-#' @param variant_type type of variant included in the analysis. Choices include "SNV", "Indel", or "variant" (default = "SNV").
-#' @param geno_missing_imputation method of handling missing genotypes. Either "mean" or "minor" (default = "mean").
-#' @param Annotation_dir channel name of the annotations in the aGDS file \cr (default = "annotation/info/FunctionalAnnotation").
-#' @param Annotation_name_catalog a data frame containing the name and the corresponding channel name in the aGDS file.
-#' @param Use_annotation_weights use annotations as weights or not (default = TRUE).
-#' @param Annotation_name a vector of annotation names used in STAAR (default = NULL).
-#' @param silent logical: should the report of error messages be suppressed (default = FALSE).
-#' @return a data frame containing the STAAR p-values (including STAAR-O) corresponding to the exonic and splicing category of the given ncRNA gene.
-#' @references Li, Z., Li, X., et al. (2022). A framework for detecting
-#' noncoding rare-variant associations of large-scale whole-genome sequencing
-#' studies. \emph{Nature Methods}, \emph{19}(12), 1599-1611.
-#' (\href{https://doi.org/10.1038/s41592-022-01640-x}{pub})
-#' @references Li, X., Li, Z., et al. (2020). Dynamic incorporation of multiple
-#' in silico functional annotations empowers rare variant association analysis of
-#' large whole-genome sequencing studies at scale. \emph{Nature Genetics}, \emph{52}(9), 969-983.
-#' (\href{https://doi.org/10.1038/s41588-020-0676-4}{pub})
-#' @export
-
 ncRNA_nolongmask <- function(chr,gene_name,genofile,obj_nullmodel,
                              rare_maf_cutoff=0.01,rv_num_cutoff=2,
                              QC_label="annotation/filter",variant_type=c("SNV","Indel","variant"),geno_missing_imputation=c("mean","minor"),
                              Annotation_dir="annotation/info/FunctionalAnnotation",Annotation_name_catalog,
-                             Use_annotation_weights=c(TRUE,FALSE),Annotation_name=NULL,silent=FALSE){
+                             Use_annotation_weights=c(TRUE,FALSE),Annotation_name=NULL,
+                             SPA_p_filter=TRUE,p_filter_cutoff=0.05,silent=FALSE){
 
 	## evaluate choices
 	variant_type <- match.arg(variant_type)
 	geno_missing_imputation <- match.arg(geno_missing_imputation)
 
 	phenotype.id <- as.character(obj_nullmodel$id_include)
+	n_pheno <- obj_nullmodel$n.pheno
+
+	## SPA status
+	if(!is.null(obj_nullmodel$use_SPA))
+	{
+		use_SPA <- obj_nullmodel$use_SPA
+	}else
+	{
+		use_SPA <- FALSE
+	}
 
 	## get SNV id
 	filter <- seqGetData(genofile, QC_label)
@@ -179,10 +153,22 @@ ncRNA_nolongmask <- function(chr,gene_name,genofile,obj_nullmodel,
 	}
 
 	pvalues <- 0
-	try(pvalues <- STAAR(Geno,obj_nullmodel,Anno.Int.PHRED.sub,rare_maf_cutoff=rare_maf_cutoff,rv_num_cutoff=rv_num_cutoff),silent=silent)
+	if(n_pheno == 1)
+	{
+		if(!use_SPA)
+		{
+			try(pvalues <- STAAR(Geno,obj_nullmodel,Anno.Int.PHRED.sub,rare_maf_cutoff=rare_maf_cutoff,rv_num_cutoff=rv_num_cutoff),silent=silent)
+		}else
+		{
+			try(pvalues <- STAAR_Binary_SPA(Geno,obj_nullmodel,Anno.Int.PHRED.sub,rare_maf_cutoff=rare_maf_cutoff,rv_num_cutoff=rv_num_cutoff,SPA_p_filter=SPA_p_filter,p_filter_cutoff=p_filter_cutoff),silent=silent)
+		}
+	}else
+	{
+		try(pvalues <- MultiSTAAR(Geno,obj_nullmodel,Anno.Int.PHRED.sub,rare_maf_cutoff=rare_maf_cutoff,rv_num_cutoff=rv_num_cutoff),silent=silent)
+	}
 
 	results <- c()
-	if(class(pvalues)=="list")
+	if(inherits(pvalues, "list"))
 	{
 		results_temp <- rep(NA,4)
 		results_temp[3] <- "ncRNA"
@@ -190,19 +176,33 @@ ncRNA_nolongmask <- function(chr,gene_name,genofile,obj_nullmodel,
 		results_temp[1] <- as.character(gene_name)
 		results_temp[4] <- pvalues$num_variant
 
-
-		results_temp <- c(results_temp,pvalues$results_STAAR_S_1_25,pvalues$results_STAAR_S_1_1,
-		pvalues$results_STAAR_B_1_25,pvalues$results_STAAR_B_1_1,pvalues$results_STAAR_A_1_25,
-		pvalues$results_STAAR_A_1_1,pvalues$results_ACAT_O,pvalues$results_STAAR_O)
+		if(!use_SPA)
+		{
+			results_temp <- c(results_temp,pvalues$cMAC,pvalues$results_STAAR_S_1_25,pvalues$results_STAAR_S_1_1,
+			                  pvalues$results_STAAR_B_1_25,pvalues$results_STAAR_B_1_1,pvalues$results_STAAR_A_1_25,
+			                  pvalues$results_STAAR_A_1_1,pvalues$results_ACAT_O,pvalues$results_STAAR_O)
+		}else
+		{
+			results_temp <- c(results_temp,pvalues$cMAC,
+			                  pvalues$results_STAAR_B_1_25,pvalues$results_STAAR_B_1_1,pvalues$results_STAAR_B)
+		}
 
 		results <- rbind(results,results_temp)
 	}
 
 	if(!is.null(results))
 	{
-		colnames(results) <- colnames(results, do.NULL = FALSE, prefix = "col")
-		colnames(results)[1:4] <- c("Gene name","Chr","Category","#SNV")
-		colnames(results)[(dim(results)[2]-1):dim(results)[2]] <- c("ACAT-O","STAAR-O")
+		if(!use_SPA)
+		{
+			colnames(results) <- colnames(results, do.NULL = FALSE, prefix = "col")
+			colnames(results)[1:5] <- c("Gene name","Chr","Category","#SNV","cMAC")
+			colnames(results)[(dim(results)[2]-1):dim(results)[2]] <- c("ACAT-O","STAAR-O")
+		}else
+		{
+			colnames(results) <- colnames(results, do.NULL = FALSE, prefix = "col")
+			colnames(results)[1:5] <- c("Gene name","Chr","Category","#SNV","cMAC")
+			colnames(results)[dim(results)[2]] <- c("STAAR-B")
+		}
 	}
 
 	seqResetFilter(genofile)
