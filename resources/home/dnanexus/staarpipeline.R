@@ -154,7 +154,9 @@ if(test.type == "Null") {
 	chr <- CHR[1]
 	rm(CHR); gc()
 	## genes info
+	coding_longmasks <- c("TTN","PCDHA2","PCDHA3","PCDHGA1","PCDHGA2","PCDHGA3","PCDHGB1","PCDHGA4","PCDHGB2","PCDHGB3")
 	genes_info_chr <- genes_info[genes_info[,2]==chr,]
+	genes_info_chr <- genes_info_chr[!genes_info_chr[,1] %in% coding_longmasks,]
 	sub_seq_num <- dim(genes_info_chr)[1]
 	
 	## array_id
@@ -183,7 +185,7 @@ if(test.type == "Null") {
 } else if(test.type == "Gene_Centric_Noncoding") {
   if(annotation.name.catalog.file == "NO_ANNOTATION_NAME_CATALOG_FILE") stop("Error: Annotation name catalog file cannot be missing when test.type is Gene_Centric_Noncoding")
   Annotation_name_catalog <- read.csv(annotation.name.catalog.file, as.is=T)
-	cat("Performing gene-centric test for noncoding functional categories, the following arguments will be ignored:\n")
+  cat("Performing gene-centric test for noncoding functional categories, the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
   rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
@@ -199,7 +201,12 @@ if(test.type == "Null") {
 	chr <- CHR[1]
 	rm(CHR)
 	## genes info
+	noncoding_longmasks <- c("ARID4B","RERE","CRIM1","EML4","EML6","GLI2","ITGB6","FNDC3B","AFAP1","TRIO",
+	                         "NR3C1","SGK1","PRDM1","TNS3","GNA12","HOXA2","PLEC","ASAP1","CSGALNACT1","RAPGEF1",
+	                         "KLF6","DNAJB12","ABLIM1","ETV6","IGF1R","RMI2","CMIP","HOXB2","SEPT9","SPECC1",
+	                         "CIRBP","ADNP","CDC42EP3","EPAS1","MGAT5")
 	genes_info_chr <- genes_info[genes_info[,2]==chr,]
+	genes_info_chr <- genes_info_chr[!genes_info_chr[,1] %in% noncoding_longmasks,]
 	sub_seq_num <- dim(genes_info_chr)[1]
 	
 	## array_id
@@ -470,11 +477,11 @@ if(test.type == "Null") {
 } else if(test.type == "ncRNA") {
   if(annotation.name.catalog.file == "NO_ANNOTATION_NAME_CATALOG_FILE") stop("Error: Annotation name catalog file cannot be missing when test.type is ncRNA")
   Annotation_name_catalog <- read.csv(annotation.name.catalog.file, as.is=T)
-	cat("Performing ncRNA test, the following arguments will be ignored:\n")
+  cat("Performing ncRNA test, the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
   rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
-	
+  
   source("ncRNA_nolongmask.R")
   
 	genofile <- seqOpen(agds.file)
@@ -484,7 +491,9 @@ if(test.type == "Null") {
 	chr <- CHR[1]
 	rm(CHR)
 	## genes info
+	ncRNA_longmasks <- c("KCNQ1OT1","AC006548.28","RP3-394A18.1","RP3-323A16.1","RP5-1039K5.19","SNHG14","LL22NC03-86G7.1")
 	ncRNA_gene_chr <- ncRNA_gene[ncRNA_gene[,1]==chr,]
+	ncRNA_gene_chr <- ncRNA_gene_chr[!ncRNA_gene_chr[,2] %in% ncRNA_longmasks,]
 	sub_seq_num <- dim(ncRNA_gene_chr)[1]
 	
 	## array_id
@@ -513,7 +522,7 @@ if(test.type == "Null") {
 }else if(test.type == "Sliding_Window") {
   if(annotation.name.catalog.file == "NO_ANNOTATION_NAME_CATALOG_FILE" && Use_annotation_weights) stop("Error: Annotation name catalog file cannot be missing when test.type is Sliding_Window and Use_annotation_weights is YES")
   Annotation_name_catalog <- read.csv(annotation.name.catalog.file, as.is=T)
-	cat("Performing sliding window test, the following arguments will be ignored:\n")
+  cat("Performing sliding window test, the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "sliding_window_length", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
 	
@@ -576,7 +585,7 @@ if(test.type == "Null") {
 }else if(test.type == "SCANG") {
   if(annotation.name.catalog.file == "NO_ANNOTATION_NAME_CATALOG_FILE" && Use_annotation_weights) stop("Error: Annotation name catalog file cannot be missing when test.type is SCANG and Use_annotation_weights is YES")
   Annotation_name_catalog <- read.csv(annotation.name.catalog.file, as.is=T)
-	cat("Performing dynamic window test (SCANG), the following arguments will be ignored:\n")
+  cat("Performing dynamic window test (SCANG), the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
   rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
