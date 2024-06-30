@@ -1,7 +1,7 @@
 <!-- dx-header -->
 # STAAR Pipeline for Analyzing WGS/WES Data (DNAnexus Platform App)
 
-This is a pipeline applet to perform STAAR procedure for analyzing whole-genome/whole-exome sequencing data. For more details about this applet, please see the user manual at https://tinyurl.com/staarpipeline
+This is a pipeline applet to perform STAAR procedure for analyzing whole-genome/whole-exome sequencing data. For more details about this applet, please see the user manual at https://tinyurl.com/staarpipelineapps
 
 This is the source code for an app that runs on the DNAnexus Platform.
 For more information about how to run or modify it, see

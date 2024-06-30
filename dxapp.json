@@ -2,9 +2,9 @@
   "name": "staarpipeline",
   "title": "STAAR Pipeline for Analyzing WGS/WES Data",
   "summary": "This is a pipeline applet to perform STAAR procedure for analyzing whole-genome/whole-exome sequencing data. For more details about this applet, please see the user manual at https://tinyurl.com/staarpipeline",
-  "description": "For null model fitting (\"Null\"), an instance type of \"mem3_ssd1_v2_x4\" is recommended. For single variant analysis (\"Single\"), an instance type of \"mem3_ssd1_v2_x32\" with 25 cores is recommended per chromosome. For gene-centric analysis of coding functional categories (\"Gene_Centric_Coding\"), an instance type of \"mem3_ssd1_v2_x32\" with 32 cores is recommended per chromosome. For gene-centric analysis of noncoding functional categories (\"Gene_Centric_Noncoding\"), an instance type of \"mem3_ssd1_v2_x64\" with 64 cores is recommended per chromosome. For ncRNA analysis (\"ncRNA\"), an instance type of \"mem3_ssd1_v2_x32\" with 32 cores is recommended per chromosome. For sliding window analysis (\"Sliding_Window\"), an instance type of \"mem3_ssd1_v2_x96\" with 80 cores is recommended per chromosome. Note 1: The staarpipeline applet assumes sparse relatedness matrices as the input (for related samples) when fitting the null model. The null model object fitted from the GENESIS R/Bioconductor package is also allowed for all downstream testing procedures (\"Single\", \"Gene_Centric_Coding\", \"Gene_Centric_Noncoding\", \"ncRNA\", \"Sliding_Window\"). Note 2: These configurations are optimized at sample size ~65,000. For larger sample sizes, please consider reducing the number of cores if needed. For more information on the detailed computation time and cost, please see the online user manual.",
+  "description": "For information on the recommended instance type and number of cores to be used, please see the online user manual at https://tinyurl.com/staarpipelineapps.",
   "dxapi": "1.0.0",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "inputSpec": [
     {
       "name": "outfile",
@@ -15,8 +15,8 @@
     },
     {
       "name": "test_type",
-      "label": "Valid tests: \"Single\", \"Gene_Centric_Coding\", \"Gene_Centric_Noncoding\", \"ncRNA\", \"Sliding_Window\", \"Null\" (no tests, only fitting the null model)",
-      "help": "Only \"Single\", \"Gene_Centric_Coding\", \"Gene_Centric_Noncoding\", \"ncRNA\", \"Sliding_Window\", \"Null\" are valid test types. Note that no tests will be performed when choosing Null, only the STAAR null model will be fitted and saved in an .Rdata object.",
+      "label": "Valid tests: \"Single\", \"Gene_Centric_Coding\", \"Gene_Centric_Coding_incl_ptv\", \"Gene_Centric_Noncoding\", \"ncRNA\", \"Sliding_Window\", \"Null\" (no tests, only fitting the null model)",
+      "help": "Only \"Single\", \"Gene_Centric_Coding\", \"Gene_Centric_Coding_incl_ptv\", \"Gene_Centric_Noncoding\", \"ncRNA\", \"Sliding_Window\", \"Null\" are valid test types. Note that no tests will be performed when choosing Null, only the STAAR null model will be fitted and saved in an .Rdata object.",
       "class": "string",
       "optional": false
     },
@@ -47,7 +47,7 @@
     {
       "name": "agds_file",
       "label": "AGDS file",
-      "help": "Genotype and functional annotation all-in-one GDS (AGDS) file in .gds format. Must be provided if test_type is \"Single\", \"Gene_Centric_Coding\", \"Gene_Centric_Noncoding\", \"ncRNA\", or \"Sliding_Window\".",
+      "help": "Genotype and functional annotation all-in-one GDS (AGDS) file in .gds format. Must be provided if test_type is \"Single\", \"Gene_Centric_Coding\", \"Gene_Centric_Coding_incl_ptv\", \"Gene_Centric_Noncoding\", \"ncRNA\", or \"Sliding_Window\".",
       "class": "file",
       "patterns": ["*.gds"],
       "optional": true
@@ -114,7 +114,7 @@
     },
     {
       "name": "max_maf",
-      "label": "Maximum minor allele frequency for a variant to be included in variant-set test (\"Gene_Centric_Coding\", \"Gene_Centric_Noncoding\", \"ncRNA\", \"Sliding_Window\")",
+      "label": "Maximum minor allele frequency for a variant to be included in variant-set test (\"Gene_Centric_Coding\", \"Gene_Centric_Coding_incl_ptv\", \"Gene_Centric_Noncoding\", \"ncRNA\", \"Sliding_Window\")",
       "help": "Note this is the maximum minor allele frequency, not the alternate (coding) allele frequency. If not specified, 0.01 will be used as the default (to perform variant-set analysis for rare variants).",
       "class": "float",
       "optional": true,
@@ -206,7 +206,7 @@
     "aws:eu-west-2": {
       "systemRequirements": {
         "*": {
-          "instanceType": "mem3_ssd1_v2_x32"
+          "instanceType": "mem3_ssd1_v2_x48"
         }
       }
     }
