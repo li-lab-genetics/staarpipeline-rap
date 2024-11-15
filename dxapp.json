@@ -4,7 +4,7 @@
   "summary": "This is a pipeline applet to perform STAAR procedure for analyzing whole-genome/whole-exome sequencing data. For more details about this applet, please see the user manual at https://tinyurl.com/staarpipeline",
   "description": "For information on the recommended instance type and number of cores to be used, please see the online user manual at https://tinyurl.com/staarpipelineapps.",
   "dxapi": "1.0.0",
-  "version": "0.9.7",
+  "version": "0.9.7.1",
   "inputSpec": [
     {
       "name": "outfile",
@@ -119,6 +119,22 @@
       "class": "float",
       "optional": true,
       "default": 0.01
+    },
+    {
+      "name": "min_rv_num",
+      "label": "Minimum number of variants of analyzing a given variant-set",
+      "help": "If not specified, 2 will be used as the default (to perform variant-set analysis for rare variants).",
+      "class": "int",
+      "optional": true,
+      "default": 2
+    },
+    {
+      "name": "max_rv_num",
+      "label": "Maximum number of variants of analyzing a given variant-set",
+      "help": "If not specified, 10000 will be used as the default (to perform variant-set analysis for rare variants).",
+      "class": "int",
+      "optional": true,
+      "default": 10000
     },
     {
       "name": "sliding_window_length",

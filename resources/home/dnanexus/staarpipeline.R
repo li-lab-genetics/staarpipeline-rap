@@ -16,13 +16,15 @@ random_time_slope <- args[12]
 user_cores <- as.numeric(args[13])
 min.mac <- as.numeric(args[14])
 max.maf <- as.numeric(args[15])
-sliding_window_length <- as.numeric(args[16])
-QC_label <- args[17]
-variant_type <- args[18]
-geno_missing_imputation <- args[19]
-Annotation_dir <- args[20]
-Use_annotation_weights <- args[21]
-Annotation_name <- args[22]
+min.rv.num <- as.numeric(args[16])
+max.rv.num <- as.numeric(args[17])
+sliding_window_length <- as.numeric(args[18])
+QC_label <- args[19]
+variant_type <- args[20]
+geno_missing_imputation <- args[21]
+Annotation_dir <- args[22]
+Use_annotation_weights <- args[23]
+Annotation_name <- args[24]
 
 test.type.vals <- c("Null", "Single", "Gene_Centric_Coding", "Gene_Centric_Coding_incl_ptv", "Gene_Centric_Noncoding", "ncRNA", "Sliding_Window", "SCANG")
 if(!test.type %in% test.type.vals) stop("Error: test.type must be Null, Single, Gene_Centric_Coding, Gene_Centric_Coding_incl_ptv, Gene_Centric_Noncoding, ncRNA, Sliding_Window, or SCANG")
@@ -116,7 +118,7 @@ if(nullobj.file == "NO_NULL_OBJ") {
 	if(is.binary) {
 		cat("Running analysis for a binary trait using the logistic mixed model, the following arguments will be ignored:\n")
 		cat("\tGrouping variable in heteroscedastic linear mixed models:", het_vars, "\n")
-	}	
+	}
 	formula <- if(covariates=="NO_COVAR") paste(phenotype, "~ 1") else paste(phenotype, "~", paste(unlist(strsplit(covariates, ",")), collapse = " + "))
 	nullobj <- fit_nullmodel(as.formula(formula), data=pheno, kins=kins, id=pheno_id, random.slope=if(random_time_slope=="NO_RANDOM_TIME_SLOPE") NULL else random_time_slope, groups=if(het_vars=="NO_HET_VARS") NULL else het_vars, family=family, verbose=TRUE)
 	rm(pheno, kins); gc()
@@ -146,40 +148,41 @@ if(test.type == "Null") {
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
   rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
-		
+
 	genofile <- seqOpen(agds.file)
-	
+
 	## Chr
 	CHR <- as.numeric(seqGetData(genofile, "chromosome"))
 	chr <- CHR[1]
 	rm(CHR); gc()
 	## genes info
-	coding_longmasks <- c("TTN","PCDHA2","PCDHA3","PCDHGA1","PCDHGA2","PCDHGA3","PCDHGB1","PCDHGA4","PCDHGB2","PCDHGB3")
 	genes_info_chr <- genes_info[genes_info[,2]==chr,]
-	genes_info_chr <- genes_info_chr[!genes_info_chr[,1] %in% coding_longmasks,]
 	sub_seq_num <- dim(genes_info_chr)[1]
-	
+
 	## array_id
-	sub_seq_id <- 1:sub_seq_num	
+	sub_seq_id <- 1:sub_seq_num
 
 	gene_centric_coding_dnanexus <- function(genes_info_chr,kk,chr,genofile,obj_nullmodel,rare_maf_cutoff,
+	                                         rv_num_cutoff,rv_num_cutoff_max,
 	                                         QC_label,variant_type,geno_missing_imputation,
 	                                         Annotation_dir,Annotation_name_catalog,
 	                                         Use_annotation_weights,Annotation_name,silent)
 	{
 		gene_name <- genes_info_chr[kk,1]
 		results <- try(Gene_Centric_Coding(chr=chr,gene_name=gene_name,genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
+		                                   rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,
 		                                   QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
 		                                   Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
 		                                   Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
 		return(results)
 	}
-		
+
 	out <- mclapply(sub_seq_id,gene_centric_coding_dnanexus,genes_info_chr=genes_info_chr,chr=chr,genofile=genofile,obj_nullmodel=nullobj,rare_maf_cutoff=max.maf,
+	                rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,
 	                QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
 	                Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
 	                Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)
-		
+
 	rm(list=setdiff(ls(), c("out", "outfile"))); gc()
 	save(out, file = paste0(outfile, ".Rdata"))
 	} else if(test.type == "Gene_Centric_Coding_incl_ptv") {
@@ -189,40 +192,41 @@ if(test.type == "Null") {
 	  cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
 	  cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
 	  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
-	  
+
 	  genofile <- seqOpen(agds.file)
-	  
+
 	  ## Chr
 	  CHR <- as.numeric(seqGetData(genofile, "chromosome"))
 	  chr <- CHR[1]
 	  rm(CHR); gc()
 	  ## genes info
-	  coding_longmasks <- c("TTN","PCDHA2","PCDHA3","PCDHGA1","PCDHGA2","PCDHGA3","PCDHGB1","PCDHGA4","PCDHGB2","PCDHGB3")
 	  genes_info_chr <- genes_info[genes_info[,2]==chr,]
-	  genes_info_chr <- genes_info_chr[!genes_info_chr[,1] %in% coding_longmasks,]
 	  sub_seq_num <- dim(genes_info_chr)[1]
-	  
+
 	  ## array_id
-	  sub_seq_id <- 1:sub_seq_num	
-	  
+	  sub_seq_id <- 1:sub_seq_num
+
 	  gene_centric_coding_incl_ptv_dnanexus <- function(genes_info_chr,kk,chr,genofile,obj_nullmodel,rare_maf_cutoff,
+	                                                    rv_num_cutoff,rv_num_cutoff_max,
 	                                                    QC_label,variant_type,geno_missing_imputation,
 	                                                    Annotation_dir,Annotation_name_catalog,
 	                                                    Use_annotation_weights,Annotation_name,silent)
 	  {
 	    gene_name <- genes_info_chr[kk,1]
 	    results <- try(Gene_Centric_Coding(chr=chr,gene_name=gene_name,category="all_categories_incl_ptv",genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
+	                                       rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,
 	                                       QC_label=QC_label,variant_type="variant",geno_missing_imputation=geno_missing_imputation,
 	                                       Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
 	                                       Use_annotation_weights=FALSE,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
 	    return(results)
 	  }
-	  
+
 	  out <- mclapply(sub_seq_id,gene_centric_coding_incl_ptv_dnanexus,genes_info_chr=genes_info_chr,chr=chr,genofile=genofile,obj_nullmodel=nullobj,rare_maf_cutoff=max.maf,
+	                  rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,
 	                  QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
 	                  Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
 	                  Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)
-	  
+
 	  rm(list=setdiff(ls(), c("out", "outfile"))); gc()
 	  save(out, file = paste0(outfile, ".Rdata"))
 } else if(test.type == "Gene_Centric_Noncoding") {
@@ -232,35 +236,31 @@ if(test.type == "Null") {
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
   rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
-	
+
 	suppressMessages(library(GenomicFeatures))
 	suppressMessages(library(TxDb.Hsapiens.UCSC.hg38.knownGene))
 	source("Gene_Centric_Noncoding_preload.R")
 
 	genofile <- seqOpen(agds.file)
-	
+
 	## Chr
 	CHR <- as.numeric(seqGetData(genofile, "chromosome"))
 	chr <- CHR[1]
 	rm(CHR)
 	## genes info
-	noncoding_longmasks <- c("ARID4B","RERE","CRIM1","EML4","EML6","GLI2","ITGB6","FNDC3B","AFAP1","TRIO",
-	                         "NR3C1","SGK1","PRDM1","TNS3","GNA12","HOXA2","PLEC","ASAP1","CSGALNACT1","RAPGEF1",
-	                         "KLF6","DNAJB12","ABLIM1","ETV6","IGF1R","RMI2","CMIP","HOXB2","SEPT9","SPECC1",
-	                         "CIRBP","ADNP","CDC42EP3","EPAS1","MGAT5")
 	genes_info_chr <- genes_info[genes_info[,2]==chr,]
-	genes_info_chr <- genes_info_chr[!genes_info_chr[,1] %in% noncoding_longmasks,]
 	sub_seq_num <- dim(genes_info_chr)[1]
-	
+
 	## array_id
-	sub_seq_id <- 1:sub_seq_num	
+	sub_seq_id <- 1:sub_seq_num
 
 	gene_centric_noncoding_dnanexus <- function(genes_info_chr,kk,chr,genofile,obj_nullmodel,
 	                                            dfPromCAGEVarGene.SNV,variant.id.SNV.PromCAGE,
 	                                            dfPromrOCRsVarGene.SNV,variant.id.SNV.PromrOCRs,
 	                                            dfHancerCAGEVarGene.SNV,variant.id.SNV.HancerCAGE,
 	                                            dfHancerrOCRsVarGene.SNV,variant.id.SNV.HancerrOCRs,
-	                                            rare_maf_cutoff,QC_label,variant_type,geno_missing_imputation,
+	                                            rare_maf_cutoff,rv_num_cutoff,rv_num_cutoff_max,
+	                                            QC_label,variant_type,geno_missing_imputation,
 	                                            Annotation_dir,Annotation_name_catalog,
 	                                            Use_annotation_weights,Annotation_name,silent){
 		gene_name <- genes_info_chr[kk,1]
@@ -269,16 +269,17 @@ if(test.type == "Null") {
 		                                              dfPromrOCRsVarGene.SNV=dfPromrOCRsVarGene.SNV,variant.id.SNV.PromrOCRs=variant.id.SNV.PromrOCRs,
 		                                              dfHancerCAGEVarGene.SNV=dfHancerCAGEVarGene.SNV,variant.id.SNV.HancerCAGE=variant.id.SNV.HancerCAGE,
 		                                              dfHancerrOCRsVarGene.SNV=dfHancerrOCRsVarGene.SNV,variant.id.SNV.HancerrOCRs=variant.id.SNV.HancerrOCRs,
-		                                              rare_maf_cutoff=rare_maf_cutoff,QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
+		                                              rare_maf_cutoff=rare_maf_cutoff,rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,
+		                                              QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
 		                                              Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
 		                                              Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
 		return(results)
 	}
-	
+
 	#########################################################
 	#             Promoter_CAGE
 	#########################################################
-	
+
 	varid <- seqGetData(genofile, "variant.id")
 	txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
 	promGobj <- promoters(genes(txdb), upstream = 3000, downstream = 3000)
@@ -307,12 +308,12 @@ if(test.type == "Null") {
 	{
 	  SNVlist <- filter == "PASS"
 	}
-	
+
 	if(variant_type=="SNV")
 	{
 	  SNVlist <- (filter == "PASS") & isSNV(genofile)
 	}
-	
+
 	if(variant_type=="Indel")
 	{
 	  SNVlist <- (filter == "PASS") & (!isSNV(genofile))
@@ -364,12 +365,12 @@ if(test.type == "Null") {
 	{
 	  SNVlist <- filter == "PASS"
 	}
-	
+
 	if(variant_type=="SNV")
 	{
 	  SNVlist <- (filter == "PASS") & isSNV(genofile)
 	}
-	
+
 	if(variant_type=="Indel")
 	{
 	  SNVlist <- (filter == "PASS") & (!isSNV(genofile))
@@ -387,11 +388,11 @@ if(test.type == "Null") {
 
 	rm(dfPromrOCRsVarGene)
 	gc()
-	
+
 	#########################################################
 	#             Enhancer_CAGE
 	#########################################################
-	
+
 	varid <- seqGetData(genofile, "variant.id")
 
 	#Now extract the GeneHancer with CAGE Signal Overlay
@@ -423,12 +424,12 @@ if(test.type == "Null") {
 	{
 	  SNVlist <- filter == "PASS"
 	}
-	
+
 	if(variant_type=="SNV")
 	{
 	  SNVlist <- (filter == "PASS") & isSNV(genofile)
 	}
-	
+
 	if(variant_type=="Indel")
 	{
 	  SNVlist <- (filter == "PASS") & (!isSNV(genofile))
@@ -482,12 +483,12 @@ if(test.type == "Null") {
 	{
 	  SNVlist <- filter == "PASS"
 	}
-	
+
 	if(variant_type=="SNV")
 	{
 	  SNVlist <- (filter == "PASS") & isSNV(genofile)
 	}
-	
+
 	if(variant_type=="Indel")
 	{
 	  SNVlist <- (filter == "PASS") & (!isSNV(genofile))
@@ -505,16 +506,17 @@ if(test.type == "Null") {
 
 	rm(dfHancerrOCRsVarGene)
 	gc()
-	
+
 	out <- mclapply(sub_seq_id,gene_centric_noncoding_dnanexus,genes_info_chr=genes_info_chr,chr=chr,genofile=genofile,obj_nullmodel=nullobj,
 	                dfPromCAGEVarGene.SNV=dfPromCAGEVarGene.SNV,variant.id.SNV.PromCAGE=variant.id.SNV.PromCAGE,
 	                dfPromrOCRsVarGene.SNV=dfPromrOCRsVarGene.SNV,variant.id.SNV.PromrOCRs=variant.id.SNV.PromrOCRs,
 	                dfHancerCAGEVarGene.SNV=dfHancerCAGEVarGene.SNV,variant.id.SNV.HancerCAGE=variant.id.SNV.HancerCAGE,
 	                dfHancerrOCRsVarGene.SNV=dfHancerrOCRsVarGene.SNV,variant.id.SNV.HancerrOCRs=variant.id.SNV.HancerrOCRs,
-	                rare_maf_cutoff=max.maf,QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
+	                rare_maf_cutoff=max.maf,rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,
+	                QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
 	                Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
 	                Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)
-		
+
 	rm(list=setdiff(ls(), c("out", "outfile"))); gc()
 	save(out, file = paste0(outfile, ".Rdata"))
 } else if(test.type == "ncRNA") {
@@ -524,42 +526,41 @@ if(test.type == "Null") {
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
   rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
-  
-  source("ncRNA_nolongmask.R")
-  
+
 	genofile <- seqOpen(agds.file)
-	
+
 	## Chr
 	CHR <- as.numeric(seqGetData(genofile, "chromosome"))
 	chr <- CHR[1]
 	rm(CHR)
 	## genes info
-	ncRNA_longmasks <- c("KCNQ1OT1","AC006548.28","RP3-394A18.1","RP3-323A16.1","RP5-1039K5.19","SNHG14","LL22NC03-86G7.1")
 	ncRNA_gene_chr <- ncRNA_gene[ncRNA_gene[,1]==chr,]
-	ncRNA_gene_chr <- ncRNA_gene_chr[!ncRNA_gene_chr[,2] %in% ncRNA_longmasks,]
 	sub_seq_num <- dim(ncRNA_gene_chr)[1]
-	
+
 	## array_id
-	sub_seq_id <- 1:sub_seq_num	
+	sub_seq_id <- 1:sub_seq_num
 
 	gene_centric_ncRNA_dnanexus <- function(ncRNA_gene_chr,kk,chr,genofile,obj_nullmodel,rare_maf_cutoff,
+	                                        rv_num_cutoff,rv_num_cutoff_max,
 	                                        QC_label,variant_type,geno_missing_imputation,
 	                                        Annotation_dir,Annotation_name_catalog,
 	                                        Use_annotation_weights,Annotation_name,silent)
 	{
 		gene_name <- ncRNA_gene_chr[kk,2]
-		results <- try(ncRNA_nolongmask(chr=chr,gene_name=gene_name,genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
-		                                QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
-		                                Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
-		                                Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
+		results <- try(ncRNA(chr=chr,gene_name=gene_name,genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
+		                     rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,
+		                     QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
+		                     Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
+		                     Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
 		return(results)
 	}
-		
+
 	out <- mclapply(sub_seq_id,gene_centric_ncRNA_dnanexus,ncRNA_gene_chr=ncRNA_gene_chr,chr=chr,genofile=genofile,obj_nullmodel=nullobj,rare_maf_cutoff=max.maf,
+	                rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,
 	                QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
 	                Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
 	                Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)
-		
+
 	rm(list=setdiff(ls(), c("out", "outfile"))); gc()
 	save(out, file = paste0(outfile, ".Rdata"))
 }else if(test.type == "Sliding_Window") {
@@ -568,61 +569,64 @@ if(test.type == "Null") {
   cat("Performing sliding window test, the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "sliding_window_length", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
-	
+
   genofile <- seqOpen(agds.file)
-	
+
 	## Chr
 	CHR <- as.numeric(seqGetData(genofile, "chromosome"))
 	chr <- CHR[1]
 	rm(CHR)
-	
+
 	## jobs_num
 	jobs_num <- matrix(rep(0,66),nrow=22)
-	
+
 	filter <- seqGetData(genofile, QC_label)
-	SNVlist <- filter == "PASS" 
-	
+	SNVlist <- filter == "PASS"
+
 	position <- as.numeric(seqGetData(genofile, "position"))
 	position_SNV <- position[SNVlist]
-	
+
 	jobs_num[chr,1] <- chr
 	jobs_num[chr,2] <- min(position[SNVlist])
 	jobs_num[chr,3] <- max(position[SNVlist])
-	
+
 	colnames(jobs_num) <- c("chr","start_loc","end_loc")
 	jobs_num <- as.data.frame(jobs_num)
-	
+
 	## start_loc and end_loc
 	start_loc <- jobs_num$start_loc[chr]
 	end_loc <- start_loc + (sliding_window_length/2)*20 - 1
-	
+
 	## sub-sequence num
 	sub_seq_num <- ceiling((jobs_num$end_loc[chr] - jobs_num$start_loc[chr] + 1)/20/(sliding_window_length/2))
 	sub_seq_id <- 1:sub_seq_num
 
 	sliding_window_dnanexus <- function(kk,chr,start_loc,end_loc,sliding_window_length,genofile,obj_nullmodel,rare_maf_cutoff,
+	                                    rv_num_cutoff,rv_num_cutoff_max,
 	                                    QC_label,variant_type,geno_missing_imputation,
 	                                    Annotation_dir,Annotation_name_catalog,
 	                                    Use_annotation_weights,Annotation_name,silent)
 	{
 		start_loc_sub <- start_loc + (sliding_window_length/2)*20*(kk-1)
 		end_loc_sub <- end_loc + (sliding_window_length/2)*20*(kk-1) + (sliding_window_length/2)
-	
+
 		end_loc_sub <- min(end_loc_sub,jobs_num$end_loc[chr])
-		
-		results <- try(Sliding_Window(chr=chr,start_loc=start_loc_sub,end_loc=end_loc_sub,sliding_window_length=sliding_window_length,genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,type="multiple",
+
+		results <- try(Sliding_Window(chr=chr,start_loc=start_loc_sub,end_loc=end_loc_sub,sliding_window_length=sliding_window_length,genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
+		                              rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,type="multiple",
 		                              QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
 		                              Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
 		                              Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
 
 		return(results)
 	}
-		
+
 	out <- mclapply(sub_seq_id,sliding_window_dnanexus,chr=chr,start_loc=start_loc,end_loc=end_loc,sliding_window_length=sliding_window_length,genofile=genofile,obj_nullmodel=nullobj,rare_maf_cutoff=max.maf,
+	                rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,
 	                QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
 	                Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
 	                Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)
-		
+
 	rm(list=setdiff(ls(), c("out", "outfile"))); gc()
 	save(out, file = paste0(outfile, ".Rdata"))
 }else if(test.type == "SCANG") {
@@ -632,32 +636,32 @@ if(test.type == "Null") {
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
   rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
-		
+
 	genofile <- seqOpen(agds.file)
-	
+
 	## Chr
 	CHR <- as.numeric(seqGetData(genofile, "chromosome"))
 	chr <- CHR[1]
 	rm(CHR)
-	
+
 	## jobs_num
 	jobs_num <- matrix(rep(0,66),nrow=22)
-	
+
 	filter <- seqGetData(genofile, QC_label)
-	SNVlist <- filter == "PASS" 
-	
+	SNVlist <- filter == "PASS"
+
 	position <- as.numeric(seqGetData(genofile, "position"))
 	position_SNV <- position[SNVlist]
-	
+
 	jobs_num[chr,1] <- chr
 	jobs_num[chr,2] <- min(position[SNVlist])
 	jobs_num[chr,3] <- max(position[SNVlist])
-	
+
 	colnames(jobs_num) <- c("chr","start_loc","end_loc")
 	jobs_num <- as.data.frame(jobs_num)
-	
+
 	nullobj <- staar2scang_nullmodel(nullobj)
-	
+
 	## sub-sequence num
 	sub_seq_num <- ceiling((jobs_num$end_loc[chr] - jobs_num$start_loc[chr] + 1)/0.5e6)
 	sub_seq_id <- 1:sub_seq_num
@@ -669,7 +673,7 @@ if(test.type == "Null") {
 	{
 		start_loc <- (kk-1)*0.5e6 + jobs_num$start_loc[chr]
 		end_loc <- min(start_loc + 0.5e6 - 1, jobs_num$end_loc[chr])
-	
+
 		results <- try(Dynamic_Window_SCANG(chr=chr,start_loc=start_loc,end_loc=end_loc,genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
 		                                    QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
 		                                    Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
@@ -677,12 +681,12 @@ if(test.type == "Null") {
 
 		return(results)
 	}
-		
+
 	out <- mclapply(sub_seq_id,scang_dnanexus,chr=chr,genofile=genofile,obj_nullmodel=nullobj,rare_maf_cutoff=max.maf,
 	                QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
 	                Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
 	                Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)
-		
+
 	rm(list=setdiff(ls(), c("out", "outfile"))); gc()
 	save(out, file = paste0(outfile, ".Rdata"))
 }else {
@@ -693,55 +697,55 @@ if(test.type == "Null") {
   cat("\tUse annotations as weights or not:", Use_annotation_weights, "\n")
   cat("\tAnnotations used in STAAR:", Annotation_name, "\n")
   rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "min.mac", "QC_label", "variant_type", "geno_missing_imputation", "user_cores"))); gc()
-	
+
 	genofile <- seqOpen(agds.file)
-	
+
 	## Chr
 	CHR <- as.numeric(seqGetData(genofile, "chromosome"))
 	chr <- CHR[1]
 	rm(CHR)
-	
+
 	## jobs_num
 	jobs_num <- matrix(rep(0,66),nrow=22)
-	
+
 	filter <- seqGetData(genofile, QC_label)
-	SNVlist <- filter == "PASS" 
-	
+	SNVlist <- filter == "PASS"
+
 	position <- as.numeric(seqGetData(genofile, "position"))
 	position_SNV <- position[SNVlist]
-	
+
 	jobs_num[chr,1] <- chr
 	jobs_num[chr,2] <- min(position[SNVlist])
 	jobs_num[chr,3] <- max(position[SNVlist])
-	
+
 	colnames(jobs_num) <- c("chr","start_loc","end_loc")
 	jobs_num <- as.data.frame(jobs_num)
-	
+
 	## start_loc and end_loc
 	start_loc <- jobs_num$start_loc[chr]
 	end_loc <- start_loc + 0.5e6 - 1
-	
+
 	## sub-sequence num
 	sub_seq_num <- ceiling((jobs_num$end_loc[chr] - jobs_num$start_loc[chr] + 1)/0.5e6)
 	sub_seq_id <- 1:sub_seq_num
-	
+
 	individual_analysis_dnanexus <- function(kk,chr,start_loc,end_loc,genofile,obj_nullmodel,mac_cutoff,subset_variants_num,
 	                                         QC_label,variant_type,geno_missing_imputation)
 	{
 		start_loc_sub <- start_loc + 0.5e6*(kk-1)
 		end_loc_sub <- end_loc + 0.5e6*(kk-1)
-	
+
 		end_loc_sub <- min(end_loc_sub,jobs_num$end_loc[chr])
-		
+
 		results <- try(Individual_Analysis(chr=chr,start_loc=start_loc_sub,end_loc=end_loc_sub,genofile=genofile,obj_nullmodel=obj_nullmodel,mac_cutoff=mac_cutoff,subset_variants_num=subset_variants_num,
 		                                   QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation))
 		return(results)
 	}
-	
+
 	subset_variants_num <- 5e3
 	out <- mclapply(sub_seq_id,individual_analysis_dnanexus,chr=chr,start_loc=start_loc,end_loc=end_loc,genofile=genofile,obj_nullmodel=nullobj,mac_cutoff=min.mac,subset_variants_num=subset_variants_num,
 	                QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,mc.cores=user_cores)
-		
+
 	rm(list=setdiff(ls(), c("out", "outfile"))); gc()
 	save(out, file = paste0(outfile, ".Rdata"))
 }
