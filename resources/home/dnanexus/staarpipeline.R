@@ -147,7 +147,7 @@ if(test.type == "Null") {
   cat("Performing gene-centric test for coding functional categories, the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
-  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
+  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
 
   genofile <- seqOpen(agds.file)
 
@@ -191,7 +191,7 @@ if(test.type == "Null") {
     cat("Performing gene-centric test for coding functional categories including protein-truncating variants, the following arguments will be ignored:\n")
     cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
     cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
-    rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
+    rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
 
     genofile <- seqOpen(agds.file)
 
@@ -235,7 +235,7 @@ if(test.type == "Null") {
   cat("Performing gene-centric test for noncoding functional categories, the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
-  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
+  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
 
   suppressMessages(library(GenomicFeatures))
   suppressMessages(library(TxDb.Hsapiens.UCSC.hg38.knownGene))
@@ -525,7 +525,7 @@ if(test.type == "Null") {
   cat("Performing ncRNA test, the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
-  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
+  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
 
   genofile <- seqOpen(agds.file)
 
@@ -568,7 +568,7 @@ if(test.type == "Null") {
   Annotation_name_catalog <- read.csv(annotation.name.catalog.file, as.is=T)
   cat("Performing sliding window test, the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
-  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "sliding_window_length", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
+  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "sliding_window_length", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
 
   genofile <- seqOpen(agds.file)
 
