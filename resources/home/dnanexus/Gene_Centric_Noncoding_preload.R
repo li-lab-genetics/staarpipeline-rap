@@ -4,7 +4,7 @@ Gene_Centric_Noncoding_preload <- function(chr,gene_name,category=c("all_categor
                                            dfPromrOCRsVarGene.SNV,variant.id.SNV.PromrOCRs,
                                            dfHancerCAGEVarGene.SNV,variant.id.SNV.HancerCAGE,
                                            dfHancerrOCRsVarGene.SNV,variant.id.SNV.HancerrOCRs,
-                                           rare_maf_cutoff=0.01,rv_num_cutoff=2,rv_num_cutoff=1e9,
+                                           rare_maf_cutoff=0.01,rv_num_cutoff=2,rv_num_cutoff_max=1e9,
                                            QC_label="annotation/filter",variant_type=c("SNV","Indel","variant"),geno_missing_imputation=c("mean","minor"),
                                            Annotation_dir="annotation/info/FunctionalAnnotation",Annotation_name_catalog,
                                            Use_annotation_weights=c(TRUE,FALSE),Annotation_name=NULL,
