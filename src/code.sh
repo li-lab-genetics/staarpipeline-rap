@@ -34,6 +34,7 @@ main() {
     echo "Value of max_maf: '$max_maf'"
     echo "Value of min_rv_num: '$min_rv_num'"
     echo "Value of max_rv_num: '$max_rv_num'"
+    echo "Value of max_rv_num_prefilter: '$max_rv_num_prefilter'"
     echo "Value of sliding_window_length: '$sliding_window_length'"
     echo "Value of qc_label_dir: '$qc_label_dir'"
     echo "Value of variant_type: '$variant_type'"
@@ -99,8 +100,8 @@ main() {
     random_time_slope="NO_RANDOM_TIME_SLOPE"
     fi
 
-    echo "Rscript --vanilla staarpipeline.R $outfile $test_type $pheno_file2 $grm_file2 $nullobj_file2 $agds_file2 $annotation_name_catalog_file2 $phenotype $pheno_id $covariates $het_vars $random_time_slope $user_cores $min_mac $max_maf $min_rv_num $max_rv_num $sliding_window_length $qc_label_dir $variant_type $geno_missing_imputation $annotation_dir $use_annotation_weights $annotation_name"
-    dx-docker run -v /home/dnanexus/:/home/dnanexus/ -w /home/dnanexus/ zilinli/staarpipeline:0.9.7 Rscript --vanilla staarpipeline.R $outfile $test_type $pheno_file2 $grm_file2 $nullobj_file2 $agds_file2 $annotation_name_catalog_file2 $phenotype $pheno_id $covariates $het_vars $random_time_slope $user_cores $min_mac $max_maf $min_rv_num $max_rv_num $sliding_window_length $qc_label_dir $variant_type $geno_missing_imputation $annotation_dir $use_annotation_weights $annotation_name
+    echo "Rscript --vanilla staarpipeline.R $outfile $test_type $pheno_file2 $grm_file2 $nullobj_file2 $agds_file2 $annotation_name_catalog_file2 $phenotype $pheno_id $covariates $het_vars $random_time_slope $user_cores $min_mac $max_maf $min_rv_num $max_rv_num $max_rv_num_prefilter $sliding_window_length $qc_label_dir $variant_type $geno_missing_imputation $annotation_dir $use_annotation_weights $annotation_name"
+    dx-docker run -v /home/dnanexus/:/home/dnanexus/ -w /home/dnanexus/ zilinli/staarpipeline:0.9.7 Rscript --vanilla staarpipeline.R $outfile $test_type $pheno_file2 $grm_file2 $nullobj_file2 $agds_file2 $annotation_name_catalog_file2 $phenotype $pheno_id $covariates $het_vars $random_time_slope $user_cores $min_mac $max_maf $min_rv_num $max_rv_num $max_rv_num_prefilter $sliding_window_length $qc_label_dir $variant_type $geno_missing_imputation $annotation_dir $use_annotation_weights $annotation_name
     mkdir -p out/results
     mv ${outfile}.Rdata out/results
     dx-upload-all-outputs

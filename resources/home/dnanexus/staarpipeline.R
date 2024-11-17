@@ -18,13 +18,14 @@ min.mac <- as.numeric(args[14])
 max.maf <- as.numeric(args[15])
 min.rv.num <- as.numeric(args[16])
 max.rv.num <- as.numeric(args[17])
-sliding_window_length <- as.numeric(args[18])
-QC_label <- args[19]
-variant_type <- args[20]
-geno_missing_imputation <- args[21]
-Annotation_dir <- args[22]
-Use_annotation_weights <- args[23]
-Annotation_name <- args[24]
+max.rv.num.prefilter <- as.numeric(args[18])
+sliding_window_length <- as.numeric(args[19])
+QC_label <- args[20]
+variant_type <- args[21]
+geno_missing_imputation <- args[22]
+Annotation_dir <- args[23]
+Use_annotation_weights <- args[24]
+Annotation_name <- args[25]
 
 test.type.vals <- c("Null", "Single", "Gene_Centric_Coding", "Gene_Centric_Coding_incl_ptv", "Gene_Centric_Noncoding", "ncRNA", "Sliding_Window", "SCANG")
 if(!test.type %in% test.type.vals) stop("Error: test.type must be Null, Single, Gene_Centric_Coding, Gene_Centric_Coding_incl_ptv, Gene_Centric_Noncoding, ncRNA, Sliding_Window, or SCANG")
@@ -147,7 +148,7 @@ if(test.type == "Null") {
   cat("Performing gene-centric test for coding functional categories, the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
-  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
+  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "max.rv.num.prefilter", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
 
   genofile <- seqOpen(agds.file)
 
@@ -163,14 +164,14 @@ if(test.type == "Null") {
   sub_seq_id <- 1:sub_seq_num
 
   gene_centric_coding_dnanexus <- function(genes_info_chr,kk,chr,genofile,obj_nullmodel,rare_maf_cutoff,
-                                           rv_num_cutoff,rv_num_cutoff_max,
+                                           rv_num_cutoff,rv_num_cutoff_max,rv_num_cutoff_max_prefilter,
                                            QC_label,variant_type,geno_missing_imputation,
                                            Annotation_dir,Annotation_name_catalog,
                                            Use_annotation_weights,Annotation_name,silent)
   {
     gene_name <- genes_info_chr[kk,1]
     results <- try(Gene_Centric_Coding(chr=chr,gene_name=gene_name,genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
-                                       rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,
+                                       rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,rv_num_cutoff_max_prefilter=rv_num_cutoff_max_prefilter,
                                        QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
                                        Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
                                        Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
@@ -178,7 +179,7 @@ if(test.type == "Null") {
   }
 
   out <- mclapply(sub_seq_id,gene_centric_coding_dnanexus,genes_info_chr=genes_info_chr,chr=chr,genofile=genofile,obj_nullmodel=nullobj,rare_maf_cutoff=max.maf,
-                  rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,
+                  rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,rv_num_cutoff_max_prefilter=max.rv.num.prefilter,
                   QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
                   Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
                   Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)
@@ -191,7 +192,7 @@ if(test.type == "Null") {
     cat("Performing gene-centric test for coding functional categories including protein-truncating variants, the following arguments will be ignored:\n")
     cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
     cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
-    rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
+    rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "max.rv.num.prefilter", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
 
     genofile <- seqOpen(agds.file)
 
@@ -207,14 +208,14 @@ if(test.type == "Null") {
     sub_seq_id <- 1:sub_seq_num
 
     gene_centric_coding_incl_ptv_dnanexus <- function(genes_info_chr,kk,chr,genofile,obj_nullmodel,rare_maf_cutoff,
-                                                      rv_num_cutoff,rv_num_cutoff_max,
+                                                      rv_num_cutoff,rv_num_cutoff_max,rv_num_cutoff_max_prefilter,
                                                       QC_label,variant_type,geno_missing_imputation,
                                                       Annotation_dir,Annotation_name_catalog,
                                                       Use_annotation_weights,Annotation_name,silent)
     {
       gene_name <- genes_info_chr[kk,1]
       results <- try(Gene_Centric_Coding(chr=chr,gene_name=gene_name,category="all_categories_incl_ptv",genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
-                                         rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,
+                                         rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,rv_num_cutoff_max_prefilter=rv_num_cutoff_max_prefilter,
                                          QC_label=QC_label,variant_type="variant",geno_missing_imputation=geno_missing_imputation,
                                          Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
                                          Use_annotation_weights=FALSE,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
@@ -222,7 +223,7 @@ if(test.type == "Null") {
     }
 
     out <- mclapply(sub_seq_id,gene_centric_coding_incl_ptv_dnanexus,genes_info_chr=genes_info_chr,chr=chr,genofile=genofile,obj_nullmodel=nullobj,rare_maf_cutoff=max.maf,
-                    rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,
+                    rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,rv_num_cutoff_max_prefilter=max.rv.num.prefilter,
                     QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
                     Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
                     Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)
@@ -235,7 +236,7 @@ if(test.type == "Null") {
   cat("Performing gene-centric test for noncoding functional categories, the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
-  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
+  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "max.rv.num.prefilter", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
 
   suppressMessages(library(GenomicFeatures))
   suppressMessages(library(TxDb.Hsapiens.UCSC.hg38.knownGene))
@@ -259,7 +260,8 @@ if(test.type == "Null") {
                                               dfPromrOCRsVarGene.SNV,variant.id.SNV.PromrOCRs,
                                               dfHancerCAGEVarGene.SNV,variant.id.SNV.HancerCAGE,
                                               dfHancerrOCRsVarGene.SNV,variant.id.SNV.HancerrOCRs,
-                                              rare_maf_cutoff,rv_num_cutoff,rv_num_cutoff_max,
+                                              rare_maf_cutoff,rv_num_cutoff,
+                                              rv_num_cutoff_max,rv_num_cutoff_max_prefilter,
                                               QC_label,variant_type,geno_missing_imputation,
                                               Annotation_dir,Annotation_name_catalog,
                                               Use_annotation_weights,Annotation_name,silent){
@@ -269,7 +271,8 @@ if(test.type == "Null") {
                                                   dfPromrOCRsVarGene.SNV=dfPromrOCRsVarGene.SNV,variant.id.SNV.PromrOCRs=variant.id.SNV.PromrOCRs,
                                                   dfHancerCAGEVarGene.SNV=dfHancerCAGEVarGene.SNV,variant.id.SNV.HancerCAGE=variant.id.SNV.HancerCAGE,
                                                   dfHancerrOCRsVarGene.SNV=dfHancerrOCRsVarGene.SNV,variant.id.SNV.HancerrOCRs=variant.id.SNV.HancerrOCRs,
-                                                  rare_maf_cutoff=rare_maf_cutoff,rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,
+                                                  rare_maf_cutoff=rare_maf_cutoff,rv_num_cutoff=rv_num_cutoff,
+                                                  rv_num_cutoff_max=rv_num_cutoff_max,rv_num_cutoff_max_prefilter=rv_num_cutoff_max_prefilter,
                                                   QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
                                                   Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
                                                   Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
@@ -512,7 +515,8 @@ if(test.type == "Null") {
                   dfPromrOCRsVarGene.SNV=dfPromrOCRsVarGene.SNV,variant.id.SNV.PromrOCRs=variant.id.SNV.PromrOCRs,
                   dfHancerCAGEVarGene.SNV=dfHancerCAGEVarGene.SNV,variant.id.SNV.HancerCAGE=variant.id.SNV.HancerCAGE,
                   dfHancerrOCRsVarGene.SNV=dfHancerrOCRsVarGene.SNV,variant.id.SNV.HancerrOCRs=variant.id.SNV.HancerrOCRs,
-                  rare_maf_cutoff=max.maf,rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,
+                  rare_maf_cutoff=max.maf,rv_num_cutoff=min.rv.num,
+                  rv_num_cutoff_max=max.rv.num,rv_num_cutoff_max_prefilter=max.rv.num.prefilter,
                   QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
                   Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
                   Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)
@@ -525,7 +529,7 @@ if(test.type == "Null") {
   cat("Performing ncRNA test, the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
   cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
-  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
+  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "max.rv.num.prefilter", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
 
   genofile <- seqOpen(agds.file)
 
@@ -541,14 +545,14 @@ if(test.type == "Null") {
   sub_seq_id <- 1:sub_seq_num
 
   gene_centric_ncRNA_dnanexus <- function(ncRNA_gene_chr,kk,chr,genofile,obj_nullmodel,rare_maf_cutoff,
-                                          rv_num_cutoff,rv_num_cutoff_max,
+                                          rv_num_cutoff,rv_num_cutoff_max,rv_num_cutoff_max_prefilter,
                                           QC_label,variant_type,geno_missing_imputation,
                                           Annotation_dir,Annotation_name_catalog,
                                           Use_annotation_weights,Annotation_name,silent)
   {
     gene_name <- ncRNA_gene_chr[kk,2]
     results <- try(ncRNA(chr=chr,gene_name=gene_name,genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
-                         rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,
+                         rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,rv_num_cutoff_max_prefilter=rv_num_cutoff_max_prefilter,
                          QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
                          Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
                          Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
@@ -556,7 +560,7 @@ if(test.type == "Null") {
   }
 
   out <- mclapply(sub_seq_id,gene_centric_ncRNA_dnanexus,ncRNA_gene_chr=ncRNA_gene_chr,chr=chr,genofile=genofile,obj_nullmodel=nullobj,rare_maf_cutoff=max.maf,
-                  rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,
+                  rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,rv_num_cutoff_max_prefilter=max.rv.num.prefilter,
                   QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
                   Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
                   Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)
@@ -568,7 +572,7 @@ if(test.type == "Null") {
   Annotation_name_catalog <- read.csv(annotation.name.catalog.file, as.is=T)
   cat("Performing sliding window test, the following arguments will be ignored:\n")
   cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
-  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "sliding_window_length", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
+  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "max.rv.num.prefilter", "sliding_window_length", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
 
   genofile <- seqOpen(agds.file)
 
@@ -602,7 +606,7 @@ if(test.type == "Null") {
   sub_seq_id <- 1:sub_seq_num
 
   sliding_window_dnanexus <- function(kk,chr,start_loc,end_loc,sliding_window_length,genofile,obj_nullmodel,rare_maf_cutoff,
-                                      rv_num_cutoff,rv_num_cutoff_max,
+                                      rv_num_cutoff,rv_num_cutoff_max,rv_num_cutoff_max_prefilter,
                                       QC_label,variant_type,geno_missing_imputation,
                                       Annotation_dir,Annotation_name_catalog,
                                       Use_annotation_weights,Annotation_name,silent)
@@ -613,7 +617,7 @@ if(test.type == "Null") {
     end_loc_sub <- min(end_loc_sub,jobs_num$end_loc[chr])
 
     results <- try(Sliding_Window(chr=chr,start_loc=start_loc_sub,end_loc=end_loc_sub,sliding_window_length=sliding_window_length,genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
-                                  rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,type="multiple",
+                                  rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,rv_num_cutoff_max_prefilter=rv_num_cutoff_max_prefilter,type="multiple",
                                   QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
                                   Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
                                   Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
@@ -622,7 +626,7 @@ if(test.type == "Null") {
   }
 
   out <- mclapply(sub_seq_id,sliding_window_dnanexus,chr=chr,start_loc=start_loc,end_loc=end_loc,sliding_window_length=sliding_window_length,genofile=genofile,obj_nullmodel=nullobj,rare_maf_cutoff=max.maf,
-                  rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,
+                  rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,rv_num_cutoff_max_prefilter=max.rv.num.prefilter,
                   QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
                   Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
                   Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)

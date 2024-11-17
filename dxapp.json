@@ -137,6 +137,14 @@
       "default": 10000
     },
     {
+      "name": "max_rv_num_prefilter",
+      "label": "Maximum number of variants before extracting the genotype matrix",
+      "help": "If not specified, 20000 will be used as the default (to perform variant-set analysis for rare variants).",
+      "class": "int",
+      "optional": true,
+      "default": 20000
+    },
+    {
       "name": "sliding_window_length",
       "label": "Sliding window size (bp) to be used in sliding window test (\"Sliding_Window\")",
       "help": "Sliding window size (bp) to be used to perform sliding window test for rare variants. If not specified, 2000 (bp) will be used as the default.",
