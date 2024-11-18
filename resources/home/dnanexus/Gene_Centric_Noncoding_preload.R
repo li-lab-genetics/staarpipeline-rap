@@ -216,8 +216,12 @@ noncoding_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   id.genotype.match <- phenotype.id.merge$index
 
   ## Genotype
-  Geno <- seqGetData(genofile, "$dosage")
-  Geno <- Geno[id.genotype.match,,drop=FALSE]
+  Geno <- NULL
+  if(length(seqGetData(genofile, "variant.id"))<rv_num_cutoff_max_prefilter)
+  {
+    Geno <- seqGetData(genofile, "$dosage")
+    Geno <- Geno[id.genotype.match,,drop=FALSE]
+  }
 
   ## impute missing
   if(!is.null(dim(Geno)))
@@ -376,8 +380,12 @@ noncoding_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   id.genotype.match <- phenotype.id.merge$index
 
   ## Genotype
-  Geno <- seqGetData(genofile, "$dosage")
-  Geno <- Geno[id.genotype.match,,drop=FALSE]
+  Geno <- NULL
+  if(length(seqGetData(genofile, "variant.id"))<rv_num_cutoff_max_prefilter)
+  {
+    Geno <- seqGetData(genofile, "$dosage")
+    Geno <- Geno[id.genotype.match,,drop=FALSE]
+  }
 
   ## impute missing
   if(!is.null(dim(Geno)))
@@ -535,8 +543,12 @@ noncoding_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   id.genotype.match <- phenotype.id.merge$index
 
   ## Genotype
-  Geno <- seqGetData(genofile, "$dosage")
-  Geno <- Geno[id.genotype.match,,drop=FALSE]
+  Geno <- NULL
+  if(length(seqGetData(genofile, "variant.id"))<rv_num_cutoff_max_prefilter)
+  {
+    Geno <- seqGetData(genofile, "$dosage")
+    Geno <- Geno[id.genotype.match,,drop=FALSE]
+  }
 
   ## impute missing
   if(!is.null(dim(Geno)))
@@ -667,8 +679,12 @@ noncoding_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   id.genotype.match <- phenotype.id.merge$index
 
   ## Genotype
-  Geno <- seqGetData(genofile, "$dosage")
-  Geno <- Geno[id.genotype.match,,drop=FALSE]
+  Geno <- NULL
+  if(length(seqGetData(genofile, "variant.id"))<rv_num_cutoff_max_prefilter)
+  {
+    Geno <- seqGetData(genofile, "$dosage")
+    Geno <- Geno[id.genotype.match,,drop=FALSE]
+  }
 
   ## impute missing
   if(!is.null(dim(Geno)))
@@ -799,8 +815,12 @@ noncoding_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   id.genotype.match <- phenotype.id.merge$index
 
   ## Genotype
-  Geno <- seqGetData(genofile, "$dosage")
-  Geno <- Geno[id.genotype.match,,drop=FALSE]
+  Geno <- NULL
+  if(length(seqGetData(genofile, "variant.id"))<rv_num_cutoff_max_prefilter)
+  {
+    Geno <- seqGetData(genofile, "$dosage")
+    Geno <- Geno[id.genotype.match,,drop=FALSE]
+  }
 
   ## impute missing
   if(!is.null(dim(Geno)))
@@ -931,8 +951,12 @@ noncoding_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   id.genotype.match <- phenotype.id.merge$index
 
   ## Genotype
-  Geno <- seqGetData(genofile, "$dosage")
-  Geno <- Geno[id.genotype.match,,drop=FALSE]
+  Geno <- NULL
+  if(length(seqGetData(genofile, "variant.id"))<rv_num_cutoff_max_prefilter)
+  {
+    Geno <- seqGetData(genofile, "$dosage")
+    Geno <- Geno[id.genotype.match,,drop=FALSE]
+  }
 
   ## impute missing
   if(!is.null(dim(Geno)))
@@ -1063,8 +1087,12 @@ noncoding_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   id.genotype.match <- phenotype.id.merge$index
 
   ## Genotype
-  Geno <- seqGetData(genofile, "$dosage")
-  Geno <- Geno[id.genotype.match,,drop=FALSE]
+  Geno <- NULL
+  if(length(seqGetData(genofile, "variant.id"))<rv_num_cutoff_max_prefilter)
+  {
+    Geno <- seqGetData(genofile, "$dosage")
+    Geno <- Geno[id.genotype.match,,drop=FALSE]
+  }
 
   ## impute missing
   if(!is.null(dim(Geno)))
@@ -1229,8 +1257,12 @@ promoter_CAGE_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   id.genotype.match <- phenotype.id.merge$index
 
   ## Genotype
-  Geno <- seqGetData(genofile, "$dosage")
-  Geno <- Geno[id.genotype.match,,drop=FALSE]
+  Geno <- NULL
+  if(length(seqGetData(genofile, "variant.id"))<rv_num_cutoff_max_prefilter)
+  {
+    Geno <- seqGetData(genofile, "$dosage")
+    Geno <- Geno[id.genotype.match,,drop=FALSE]
+  }
 
   ## impute missing
   if(!is.null(dim(Geno)))
@@ -1388,8 +1420,12 @@ promoter_DHS_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   id.genotype.match <- phenotype.id.merge$index
 
   ## Genotype
-  Geno <- seqGetData(genofile, "$dosage")
-  Geno <- Geno[id.genotype.match,,drop=FALSE]
+  Geno <- NULL
+  if(length(seqGetData(genofile, "variant.id"))<rv_num_cutoff_max_prefilter)
+  {
+    Geno <- seqGetData(genofile, "$dosage")
+    Geno <- Geno[id.genotype.match,,drop=FALSE]
+  }
 
   ## impute missing
   if(!is.null(dim(Geno)))
@@ -1547,8 +1583,12 @@ enhancer_CAGE_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   id.genotype.match <- phenotype.id.merge$index
 
   ## Genotype
-  Geno <- seqGetData(genofile, "$dosage")
-  Geno <- Geno[id.genotype.match,,drop=FALSE]
+  Geno <- NULL
+  if(length(seqGetData(genofile, "variant.id"))<rv_num_cutoff_max_prefilter)
+  {
+    Geno <- seqGetData(genofile, "$dosage")
+    Geno <- Geno[id.genotype.match,,drop=FALSE]
+  }
 
   ## impute missing
   if(!is.null(dim(Geno)))
@@ -1705,8 +1745,12 @@ enhancer_DHS_preload <- function(chr,gene_name,genofile,obj_nullmodel,
   id.genotype.match <- phenotype.id.merge$index
 
   ## Genotype
-  Geno <- seqGetData(genofile, "$dosage")
-  Geno <- Geno[id.genotype.match,,drop=FALSE]
+  Geno <- NULL
+  if(length(seqGetData(genofile, "variant.id"))<rv_num_cutoff_max_prefilter)
+  {
+    Geno <- seqGetData(genofile, "$dosage")
+    Geno <- Geno[id.genotype.match,,drop=FALSE]
+  }
 
   ## impute missing
   if(!is.null(dim(Geno)))
