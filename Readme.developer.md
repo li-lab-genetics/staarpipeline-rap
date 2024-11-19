@@ -1,4 +1,4 @@
-# staarpipeline_v0.9.6 Developer Readme
+# staarpipeline Developer Readme
 
 <!--
 TODO: Please edit this Readme.developer.md file to include information
