@@ -192,50 +192,50 @@ if(test.type == "Null") {
 
   rm(list=setdiff(ls(), c("out", "outfile"))); gc()
   save(out, file = paste0(outfile, ".Rdata"))
-  } else if(test.type == "Gene_Centric_Coding_incl_ptv") {
-    if(annotation.name.catalog.file == "NO_ANNOTATION_NAME_CATALOG_FILE") stop("Error: Annotation name catalog file cannot be missing when test.type is Gene_Centric_Coding")
-    Annotation_name_catalog <- read.csv(annotation.name.catalog.file, as.is=T)
-    cat("Performing gene-centric test for coding functional categories including protein-truncating variants, the following arguments will be ignored:\n")
-    cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
-    cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
-    rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "max.rv.num.prefilter", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
+} else if(test.type == "Gene_Centric_Coding_incl_ptv") {
+  if(annotation.name.catalog.file == "NO_ANNOTATION_NAME_CATALOG_FILE") stop("Error: Annotation name catalog file cannot be missing when test.type is Gene_Centric_Coding")
+  Annotation_name_catalog <- read.csv(annotation.name.catalog.file, as.is=T)
+  cat("Performing gene-centric test for coding functional categories including protein-truncating variants, the following arguments will be ignored:\n")
+  cat("\tMinimum minor allele count to be included for single variant test:", min.mac, "\n")
+  cat("\tSliding window size (bp) to be used in sliding window test:", sliding_window_length, "\n")
+  rm(list=setdiff(ls(), c("outfile", "nullobj", "agds.file", "max.maf", "min.rv.num", "max.rv.num", "max.rv.num.prefilter", "QC_label", "variant_type", "geno_missing_imputation", "Annotation_dir", "Annotation_name_catalog", "Use_annotation_weights", "Annotation_name", "user_cores"))); gc()
 
-    genofile <- seqOpen(agds.file)
+  genofile <- seqOpen(agds.file)
 
-    ## Chr
-    CHR <- as.numeric(seqGetData(genofile, "chromosome"))
-    chr <- CHR[1]
-    rm(CHR); gc()
-    ## genes info
-    genes_info_chr <- genes_info[genes_info[,2]==chr,]
-    sub_seq_num <- dim(genes_info_chr)[1]
+  ## Chr
+  CHR <- as.numeric(seqGetData(genofile, "chromosome"))
+  chr <- CHR[1]
+  rm(CHR); gc()
+  ## genes info
+  genes_info_chr <- genes_info[genes_info[,2]==chr,]
+  sub_seq_num <- dim(genes_info_chr)[1]
 
-    ## array_id
-    sub_seq_id <- 1:sub_seq_num
+  ## array_id
+  sub_seq_id <- 1:sub_seq_num
 
-    gene_centric_coding_incl_ptv_dnanexus <- function(genes_info_chr,kk,chr,genofile,obj_nullmodel,rare_maf_cutoff,
-                                                      rv_num_cutoff,rv_num_cutoff_max,rv_num_cutoff_max_prefilter,
-                                                      QC_label,variant_type,geno_missing_imputation,
-                                                      Annotation_dir,Annotation_name_catalog,
-                                                      Use_annotation_weights,Annotation_name,silent)
-    {
-      gene_name <- genes_info_chr[kk,1]
-      results <- try(Gene_Centric_Coding(chr=chr,gene_name=gene_name,category="all_categories_incl_ptv",genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
-                                         rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,rv_num_cutoff_max_prefilter=rv_num_cutoff_max_prefilter,
-                                         QC_label=QC_label,variant_type="variant",geno_missing_imputation=geno_missing_imputation,
-                                         Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
-                                         Use_annotation_weights=FALSE,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
-      return(results)
-    }
+  gene_centric_coding_incl_ptv_dnanexus <- function(genes_info_chr,kk,chr,genofile,obj_nullmodel,rare_maf_cutoff,
+                                                    rv_num_cutoff,rv_num_cutoff_max,rv_num_cutoff_max_prefilter,
+                                                    QC_label,variant_type,geno_missing_imputation,
+                                                    Annotation_dir,Annotation_name_catalog,
+                                                    Use_annotation_weights,Annotation_name,silent)
+  {
+    gene_name <- genes_info_chr[kk,1]
+    results <- try(Gene_Centric_Coding(chr=chr,gene_name=gene_name,category="all_categories_incl_ptv",genofile=genofile,obj_nullmodel=obj_nullmodel,rare_maf_cutoff=rare_maf_cutoff,
+                                       rv_num_cutoff=rv_num_cutoff,rv_num_cutoff_max=rv_num_cutoff_max,rv_num_cutoff_max_prefilter=rv_num_cutoff_max_prefilter,
+                                       QC_label=QC_label,variant_type="variant",geno_missing_imputation=geno_missing_imputation,
+                                       Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
+                                       Use_annotation_weights=FALSE,Annotation_name=Annotation_name,silent=silent),silent=TRUE)
+    return(results)
+  }
 
-    out <- mclapply(sub_seq_id,gene_centric_coding_incl_ptv_dnanexus,genes_info_chr=genes_info_chr,chr=chr,genofile=genofile,obj_nullmodel=nullobj,rare_maf_cutoff=max.maf,
-                    rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,rv_num_cutoff_max_prefilter=max.rv.num.prefilter,
-                    QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
-                    Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
-                    Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)
+  out <- mclapply(sub_seq_id,gene_centric_coding_incl_ptv_dnanexus,genes_info_chr=genes_info_chr,chr=chr,genofile=genofile,obj_nullmodel=nullobj,rare_maf_cutoff=max.maf,
+                  rv_num_cutoff=min.rv.num,rv_num_cutoff_max=max.rv.num,rv_num_cutoff_max_prefilter=max.rv.num.prefilter,
+                  QC_label=QC_label,variant_type=variant_type,geno_missing_imputation=geno_missing_imputation,
+                  Annotation_dir=Annotation_dir,Annotation_name_catalog=Annotation_name_catalog,
+                  Use_annotation_weights=Use_annotation_weights,Annotation_name=Annotation_name,silent=TRUE,mc.cores=user_cores)
 
-    rm(list=setdiff(ls(), c("out", "outfile"))); gc()
-    save(out, file = paste0(outfile, ".Rdata"))
+  rm(list=setdiff(ls(), c("out", "outfile"))); gc()
+  save(out, file = paste0(outfile, ".Rdata"))
 } else if(test.type == "Gene_Centric_Noncoding") {
   if(annotation.name.catalog.file == "NO_ANNOTATION_NAME_CATALOG_FILE") stop("Error: Annotation name catalog file cannot be missing when test.type is Gene_Centric_Noncoding")
   Annotation_name_catalog <- read.csv(annotation.name.catalog.file, as.is=T)
